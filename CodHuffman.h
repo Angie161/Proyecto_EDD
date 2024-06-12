@@ -102,6 +102,7 @@ void crearArbol(std::string text) {
 		str += CodigoHuffman[simbolo];
 	}
 	std::cout << "\nEl texto codificado es:\n" << str << "\n";
+	std::cout << "\nEl tamaño del texto codificado es:\n" << str.size() << " bits" << "\n";
 	int index = -1;
 	std::cout << "\nEl texto decodificado es:\n";
 	while(index < (int)str.size() - 1) {
