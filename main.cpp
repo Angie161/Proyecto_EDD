@@ -25,13 +25,24 @@ int main(int argc, char const *argv[])
 	// Medir el tiempo de compresión
 	auto start = std::chrono::high_resolution_clock::now(); // Tiempo de inicio
 
-	int tam = crearArbol(text);
+	ArbolCompress arbol(text);
 
 	auto end = std::chrono::high_resolution_clock::now(); // Tiempo de finalización
 
 	// Calcular la duración
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	std::cout << "Huffman" << ";" << tam << ";" << duration.count() << std::endl;
+	std::cout << "Huffman" << ";" << arbol.getSizeCode() << ";" << duration.count() << std::endl;
+
+	// Medir el tiempo de descompresión
+	auto startDes = std::chrono::high_resolution_clock::now(); // Tiempo de inicio
+
+	arbol.decodeTree();
+
+	auto endDes = std::chrono::high_resolution_clock::now(); // Tiempo de finalización
+
+	// Calcular la duración
+	auto durationDes = std::chrono::duration_cast<std::chrono::milliseconds>(endDes - startDes);
+	std::cout << "Huffman" << ";" << arbol.getSizeDeCode() << ";" << durationDes.count() << std::endl;
 
 	return 0;
 }
