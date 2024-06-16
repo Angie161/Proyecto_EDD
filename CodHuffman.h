@@ -83,7 +83,7 @@ private:
 		}
 	}
 
-	//Método para eliminar los nodos del arbol para el método destructor de la clase
+	// Método para eliminar los nodos del arbol para el método destructor de la clase
 	void liberarArbol(Node* node) {
         if (node) {
             liberarArbol(node->izq);
@@ -112,7 +112,7 @@ public:
 	        pq.push(getNode(pair.first, pair.second, nullptr, nullptr));
 	    }
 
-	    // Hacer todo el proceso hasta que gata mas de 1 nodo en la cola
+	    // Hacer todo el proceso hasta que solo haya 1 elemento en la cola
 	    while (pq.size() != 1)
 	    {
 	        Node *izq = pq.top();
@@ -134,10 +134,12 @@ public:
 	    }
 	}
 
+	// Destructor de la clase ArbolCompress
 	~ArbolCompress() {
         liberarArbol(raiz);
     }
 
+    // Método público para decodificar la información dentro del arbol de Huffman
 	void decodeTree(){
 		int index = -1;
 		while(index < (int)str.size() - 1) {
@@ -145,12 +147,13 @@ public:
 		}
 	}
 
-	// Retorna el texto codificado
+	// Método que retorna el texto codificado
 	std::string getCode()
 	{
 		return str;
 	}
 
+	// Método que retorna el texto decodificado
 	std::string getDeCode()
 	{
 		return textDec;
@@ -162,6 +165,7 @@ public:
 		return str.size();
 	}
 
+	// Retorna el tamaño del texto decodificado en bits
 	int getSizeDeCode()
 	{
 		return textDec.size();
