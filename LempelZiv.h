@@ -84,7 +84,7 @@ std::string comprimir(const std::string& data, bool conCiclo) {
                 par = trie.search(data.substr(index, largo), index);
                 if(par == noEstaba || index + largo == std::min(size, w + largoDelCiclo)) {
                     if(last == noEstaba) {
-                        if(data.substr(index, 1) != "," && data.substr(index, 10) != ";") {       
+                        if(data.substr(index, 1) != "," && data.substr(index, 1) != ";") {       
                             trie.insert(data.substr(index, largo + 1), index);
                             response += std::string(1,data[index++]);
                             frase = true;
@@ -99,9 +99,8 @@ std::string comprimir(const std::string& data, bool conCiclo) {
                             response += ",;";   
                             }                           
                             frase = false;     
-                            index++;                            
+                            index++;                        
                         }
-
                     } else if(last.second > (std::to_string(index - last.first) + "," + std::to_string(last.second) + ";").size()) {
                         if(frase) {
                             response += ";" + std::to_string(index - last.first) + "," + std::to_string(last.second) + ";"; 
@@ -109,12 +108,12 @@ std::string comprimir(const std::string& data, bool conCiclo) {
                             response += std::to_string(index - last.first) + "," + std::to_string(last.second) + ";"; 
                         }
                         for(int k = 0; k < last.second; k++) {
-                            trie.insert(data.substr(index, (largo + last.second) + k + 10), index);
+                            trie.insert(data.substr(index, (largo + last.second) + k + 1), index);
                             frase = false;
                             index ++;
                         }
                     } else {
-                        trie.insert(data.substr(index, largo + 10), index);
+                        trie.insert(data.substr(index, largo + 1), index);
                         response += std::string(1,data[index++]);
                         frase = true;
                     }
@@ -243,40 +242,4 @@ std::string readFileToString(const std::string& filePath) {
     return buffer.str();
 }
 
-int main(int argc, char* argv[]) {
-    std::string str;
-    std::string cstr;
 
-    if(argc != 2) {
-        std::cout << "No se entendio el archivo a ejecutar, se ocupara la frase \"Pedro Pablo Perez Pereira\"" << std::endl;
-        str = "Pedro Pablo Perez Pereira";
-        cstr = comprimir(str, true);
-        std::cout << cstr << std::endl;
-        std::cout << estadisticasDeLaCompresion(cstr,str) << std::endl;
-        std::cout << descomprimir(cstr) << std::endl;
-        
-    } else {
-        str = readFileToString(argv[1]);
-        auto inicio = std::chrono::high_resolution_clock::now();
-        cstr = comprimir(str, true);
-        auto fin = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> duracion = fin - inicio;
-        double duracion_minutos = duracion.count() / 60.0;
-        std::cout << "Tardo " << duracion_minutos << " minutos." << std::endl;
-        std::cout << estadisticasDeLaCompresion(cstr,str) << std::endl;
-        std::cout << cstr << std::endl;
-        std::cout << str << std::endl;
-        std::cout << descomprimir(cstr) << std::endl;
-        if(str == descomprimir(cstr)) {
-            std::cout << "yes" << std::endl;
-        } else {
-            std::cout << "nao" << std::endl;
-        }
-    }
-    
-    
-
-
-
-    return 0;
-}
