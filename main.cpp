@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
 
 	// Calcular la duración
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-	std::cout << "Huffman" << ";" << arbol.getSizeCode() << ";" << duration.count() << std::endl;
+	std::cout << "Huffman" << ";" << arbol.getSizeCodeBit() << ";" << duration.count() << std::endl;
 
 	// Medir el tiempo de descompresión
 	auto startDes = std::chrono::high_resolution_clock::now(); // Tiempo de inicio

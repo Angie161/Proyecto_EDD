@@ -4,6 +4,7 @@
 #include <string>
 #include <queue>
 #include <unordered_map>
+#include <bitset>
 
 // Nodo del arbol
 struct Node
@@ -38,11 +39,13 @@ struct comp
 class ArbolCompress
 {
 private:
-	//Variable que almacena el texto codificado
+	// Variable que almacena el texto codificado
 	std::string str = "";
-	//Variable que almacena el texto decodificado
+	// Variable que almacena el texto decodificado
 	std::string textDec = "";
-	//Variable que contendrá un puntero a la raíz del arbol
+	//Variable que almacena el texto codificado en forma de bits
+	std::string textCodBits = "";
+	// Variable que contendrá un puntero a la raíz del arbol
 	Node *raiz;
 
 	// Revisa el arbol de Huffman y guarda los códigos en un mapa
@@ -61,96 +64,129 @@ private:
 	}
 
 	// Revisa el arbol y decodifica los simbolos codificados
-	void decode(Node *raiz, int &index, std::string str)
+	void decode(Node *raiz, const std::string &str)
 	{
-		if (raiz == nullptr)
+		Node *actual = raiz;
+		int index = 0;
+
+		while (index < str.size())
 		{
-			return;
+			char bit = str[index];
+
+			if (bit == '0')
+			{
+				actual = actual->izq;
+			}
+			else if (bit == '1')
+			{
+				actual = actual->der;
+			}
+
+			index++;
+
+			if (!actual->izq && !actual->der)
+			{
+				textDec += actual->simbolo;
+				actual = raiz; // Reiniciar desde la raíz para decodificar el próximo código
+			}
 		}
-		if (!raiz->izq && !raiz->der)
-		{
-			textDec+= raiz->simbolo;
-			return;
-		}
-		index++;
-		if (str[index] == '0')
-		{
-			decode(raiz->izq, index, str);
-		}
-		else
-		{
-			decode(raiz->der, index, str);
-		}
+	}
+
+	// Método para almacenar el valor Binario en un string de manera reducida.
+	std::string toBit(std::string textToBit){
+		for (int i = 0; i < textToBit.size(); i += 8) {
+        std::string subStr = textToBit.substr(i, 8);
+
+        // Si la sub cadena no tiene 8 bits llenarla con ceros a la izquierda.
+        if (subStr.size() < 8) {
+            subStr = std::string(8 - subStr.size(), '0') + subStr;
+        }
+
+        std::bitset<8> bits(subStr);
+        textCodBits += static_cast<char>(bits.to_ulong());
+    }
+
+    	return textCodBits;
 	}
 
 	// Método para eliminar los nodos del arbol para el método destructor de la clase
-	void liberarArbol(Node* node) {
-        if (node) {
-            liberarArbol(node->izq);
-            liberarArbol(node->der);
-            delete node;
-        }
-    }
-
-public:
-	// Crea el arbol de Huffman y retorna el tamaño del texto comprimido en bits
-	ArbolCompress(const std::string &text)
+	void liberarArbol(Node *node)
 	{
-	    // Cuenta la cantidad de veces que aparece cada simbolo y lo guarda en la tabla hash
-	    std::unordered_map<char, int> frecuencia;
-	    for (char simbolo : text)
-	    {
-	        frecuencia[simbolo]++;
-	    }
-
-	    // Crea una cola de prioridad para guardar los nodos del arbol
-	    std::priority_queue<Node *, std::vector<Node *>, comp> pq;
-
-	    // Agrega a la cola de prioridad los nodos de cada simbolo
-	    for (auto pair : frecuencia)
-	    {
-	        pq.push(getNode(pair.first, pair.second, nullptr, nullptr));
-	    }
-
-	    // Hacer todo el proceso hasta que solo haya 1 elemento en la cola
-	    while (pq.size() != 1)
-	    {
-	        Node *izq = pq.top();
-	        pq.pop();
-	        Node *der = pq.top();
-	        pq.pop();
-	        int sum = izq->frecuencia + der->frecuencia;
-	        pq.push(getNode('\0', sum, izq, der));
-	    }
-	    raiz = pq.top();
-
-	    std::unordered_map<char, std::string> CodigoHuffman;
-	    encode(raiz, "", CodigoHuffman);
-
-	    // Generar el texto codificado
-	    for (char simbolo : text)
-	    {
-	        str += CodigoHuffman[simbolo];
-	    }
-	}
-
-	// Destructor de la clase ArbolCompress
-	~ArbolCompress() {
-        liberarArbol(raiz);
-    }
-
-    // Método público para decodificar la información dentro del arbol de Huffman
-	void decodeTree(){
-		int index = -1;
-		while(index < (int)str.size() - 1) {
-			decode(raiz, index, str);
+		if (node)
+		{
+			liberarArbol(node->izq);
+			liberarArbol(node->der);
+			delete node;
 		}
 	}
 
-	// Método que retorna el texto codificado
+public:
+	// Crea el arbol de Huffman y comdifica el texto ingresado
+	ArbolCompress(const std::string &text)
+	{
+		// Cuenta la cantidad de veces que aparece cada simbolo y lo guarda en la tabla hash
+		std::unordered_map<char, int> frecuencia;
+		for (char simbolo : text)
+		{
+			frecuencia[simbolo]++;
+		}
+
+		// Crea una cola de prioridad para guardar los nodos del arbol
+		std::priority_queue<Node *, std::vector<Node *>, comp> pq;
+
+		// Agrega a la cola de prioridad los nodos de cada simbolo
+		for (auto pair : frecuencia)
+		{
+			pq.push(getNode(pair.first, pair.second, nullptr, nullptr));
+		}
+
+		// Hacer todo el proceso hasta que gata mas de 1 nodo en la cola
+		while (pq.size() != 1)
+		{
+			Node *izq = pq.top();
+			pq.pop();
+			Node *der = pq.top();
+			pq.pop();
+			int sum = izq->frecuencia + der->frecuencia;
+			pq.push(getNode('\0', sum, izq, der));
+		}
+		raiz = pq.top();
+
+		std::unordered_map<char, std::string> CodigoHuffman;
+		encode(raiz, "", CodigoHuffman);
+
+		// Generar el texto codificado
+		for (char simbolo : text)
+		{
+			str += CodigoHuffman[simbolo];
+		}
+
+		toBit(str);
+	}
+
+	// Destructor de la clase ArbolCompress
+	~ArbolCompress()
+	{
+		liberarArbol(raiz);
+	}
+
+    // Método público para decodificar la información dentro del arbol de Huffman
+	void decodeTree()
+	{
+		int index = -1;
+		decode(raiz, str);
+	}
+	
+	// Retorna el texto codificado
 	std::string getCode()
 	{
 		return str;
+	}
+
+	// Método que retorna el texto codificado y representando sus bits en char
+	std::string getCodeBit()
+	{
+		return textCodBits;
 	}
 
 	// Método que retorna el texto decodificado
@@ -159,10 +195,16 @@ public:
 		return textDec;
 	}
 
-	// Retorna el tamaño del texto codificado en bits
+	// Método que retorna el tamaño del texto codificado en bits
 	int getSizeCode()
 	{
 		return str.size();
+	}
+
+	// Retorna el tamaño del texto codificado y con representación de sus bits en char
+	int getSizeCodeBit()
+	{
+		return textCodBits.size();
 	}
 
 	// Retorna el tamaño del texto decodificado en bits
