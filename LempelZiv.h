@@ -153,7 +153,7 @@ std::string descomprimir(const std::string& compressedData) {
                 vC = aux + 2;                                           
                 size = 2;
                 break;
-            }if(compressedData.substr(aux,2) == ";;" && aux == i) {     /////////////////////////////////////////////////
+            }if((compressedData.substr(aux,2) == ";;" )&&  aux == i) {     /////////////////////////////////////////////////
                 vB = -3;                                                //////// Forma tonta de lidear con las , ////////
                 vC = aux + 2;                                           /////////////////////////////////////////////////
                 size = 2;
@@ -193,8 +193,9 @@ std::string descomprimir(const std::string& compressedData) {
             for(size_t k = vB + 1; k < vC; k++) {
                 c += compressedData[k];
             } 
+            ssize_t co = uncompressedData.size();
             for(size_t k = 0; k < std::stoi(c); k++) {
-                uncompressedData += uncompressedData[i - std::stoi(p) + k - 1];
+                uncompressedData += uncompressedData[co - std::stoi(p) + k];
             }
         }
         i += size;
@@ -240,4 +241,42 @@ std::string readFileToString(const std::string& filePath) {
 
     // Devolver el contenido del buffer como un string
     return buffer.str();
+}
+
+int main(int argc, char* argv[]) {
+    std::string str;
+    std::string cstr;
+
+    if(argc != 2) {
+        std::cout << "No se entendio el archivo a ejecutar, se ocupara la frase \"Pedro Pablo Perez Pereira\"" << std::endl;
+        str = "Pedro Pablo Perez Pereira";
+        cstr = comprimir(str, true);
+        std::cout << cstr << std::endl;
+        std::cout << estadisticasDeLaCompresion(cstr,str) << std::endl;
+        std::cout << descomprimir(cstr) << std::endl;
+        
+    } else {
+        str = readFileToString(argv[1]);
+        auto inicio = std::chrono::high_resolution_clock::now();
+        cstr = comprimir(str, true);
+        auto fin = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> duracion = fin - inicio;
+        double duracion_minutos = duracion.count() / 60.0;
+        std::cout << "Tardo " << duracion_minutos << " minutos." << std::endl;
+        std::cout << estadisticasDeLaCompresion(cstr,str) << std::endl;
+        std::cout << cstr << std::endl;
+        std::cout << str << std::endl;
+        std::cout << descomprimir(cstr) << std::endl;
+        if(str == descomprimir(cstr)) {
+            std::cout << "yes" << std::endl;
+        } else {
+            std::cout << "nao" << std::endl;
+        }
+    }
+    
+    
+
+
+
+    return 0;
 }
