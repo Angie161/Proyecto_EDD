@@ -115,11 +115,11 @@ class LZ24 {
             }
 
             // Inicializamos nuestras variables.
-            ssize_t aux = i;
-            ssize_t vA = i;
-            ssize_t vB = -1;
-            ssize_t vC = -1;
-            ssize_t size = -1;
+            ssize_t aux;
+            ssize_t vA;
+            ssize_t vB;
+            ssize_t vC;
+            ssize_t size;
             std::string auxFile = "";
 
             std::cout << "Descomprimiendo   0 %";
