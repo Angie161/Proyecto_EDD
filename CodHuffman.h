@@ -2,6 +2,8 @@
 #define COD_HUFFMAN_H
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include <queue>
 #include <unordered_map>
 #include <bitset>
@@ -94,7 +96,8 @@ private:
 
 	// Método para almacenar el valor Binario en un string de manera reducida.
 	std::string toBit(std::string textToBit){
-		for (int i = 0; i < textToBit.size(); i += 8) {
+	for (int i = 0; i < textToBit.size(); i += 8) 
+	{
         std::string subStr = textToBit.substr(i, 8);
 
         // Si la sub cadena no tiene 8 bits llenarla con ceros a la izquierda.
@@ -122,11 +125,31 @@ private:
 
 public:
 	// Crea el arbol de Huffman y comdifica el texto ingresado
-	ArbolCompress(const std::string &text)
+	ArbolCompress(std::string filePath, std::string encodeFileName)
 	{
+		// Extraemos la información del archivo como un string.
+        std::ifstream file(filePath);
+        if (!file.is_open())
+        {
+            std::cerr << "No se pudo abrir el archivo: " << filePath << std::endl;
+            return;
+        }
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        std::string data = buffer.str();
+
+        // Creamos el archivo en el que guardaremos la información comprimida.
+        std::ofstream encodeFile(encodeFileName);
+        if (!encodeFile.is_open())
+        {
+            std::cerr << "No se pudo abrir el archivo para escribir: " << encodeFileName << std::endl;
+            return;
+        }
+
+
 		// Cuenta la cantidad de veces que aparece cada simbolo y lo guarda en la tabla hash
 		std::unordered_map<char, int> frecuencia;
-		for (char simbolo : text)
+		for (char simbolo : data)
 		{
 			frecuencia[simbolo]++;
 		}
@@ -156,12 +179,16 @@ public:
 		encode(raiz, "", CodigoHuffman);
 
 		// Generar el texto codificado
-		for (char simbolo : text)
+		for (char simbolo : data)
 		{
 			str += CodigoHuffman[simbolo];
 		}
 
 		toBit(str);
+
+		encodeFile << textCodBits;
+        file.close();
+        encodeFile.close();
 	}
 
 	// Destructor de la clase ArbolCompress
