@@ -28,7 +28,6 @@ public:
         }
         std::stringstream buffer;
         buffer << file.rdbuf();
-        file.close();
         std::string data = buffer.str();
 
         // Hacemos un preprocesado para eliminar los caracteres especiales que usaremos.
@@ -110,6 +109,7 @@ public:
                 trie.clear(); // Limpieamos el trie cda ciclo.
             }
         }
+        file.close();
 
         compressFile.close();
     }
@@ -220,37 +220,6 @@ public:
         }
 
         file << auxFile;
-        file.close();
-    }
-
-    void doTest(std::string fileName, std::string fileToCompress, int cantidad)
-    { // Parametros(Nombre del archivo que tendra los resultados, el archivo a comprimir, la cantidad de veces.)
-        std::ofstream file(fileName);
-        if (!file.is_open())
-        {
-            std::cerr << "No se pudo abrir el archivo para escribir: " << fileName << std::endl;
-            return;
-        }
-        file << "tecnica;tamaño;tiempo_ejecucion\n";
-
-        for (int i = 0; i < cantidad; i++)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-            compress(fileToCompress, "compressFile.lz24");
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::ifstream compressFile("compressFile.lz24");
-            if (!compressFile.is_open())
-            {
-                std::cerr << "No se pudo abrir el archivo: compressFile.lz24" << std::endl;
-                return;
-            }
-            std::stringstream buffer;
-            buffer << compressFile.rdbuf();
-            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-            file << "Lempel-Ziv" << ";" << buffer.str().size() << ";" << duration.count() << std::endl;
-            compressFile.close();
-        }
         file.close();
     }
 
